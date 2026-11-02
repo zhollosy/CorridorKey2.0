@@ -19,3 +19,8 @@
 - Guide in `docs/CorridorKey_Studio.md`.
 - The Help menu shows the License and User Guide in a built-in scrollable viewer instead of opening local files.
 - The Help menu links to the official CorridorKey project on GitHub, and the About box no longer shows local file paths.
+
+### Local developer setup (not committed)
+- `.claude/starter.json` tells ClaudeStarter to launch CorridorKey Studio with **Run**.
+- `.vscode/tasks.json` adds VS Code tasks: run the GUI (default build task), the interactive launcher, keying a clip, a 24-frame quick test, the model smoke test, a compile check, the weight download, and venv setup/install.
+- Both folders are git-ignored, so they stay on this machine.
