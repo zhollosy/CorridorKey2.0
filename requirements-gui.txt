@@ -1,0 +1,3 @@
+# Optional extras for CorridorKey Studio (ck_gui). The GUI itself only needs
+# the packages in requirements.txt; this adds drag and drop from Explorer.
+tkinterdnd2>=0.4

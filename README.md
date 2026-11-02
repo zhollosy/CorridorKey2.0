@@ -71,6 +71,13 @@ You can also start the same guided session directly:
 python run_interactive.py /path/to/clip.mp4
 ```
 
+## Desktop GUI (CorridorKey Studio)
+
+Prefer a window to a terminal? Double-click `CorridorKey_Studio.bat` (or run
+`python corridorkey_studio.py`) for a render queue, preview/compare viewer,
+per-job settings, a chroma-key hint maker and a preferences dialog. See
+[docs/CorridorKey_Studio.md](docs/CorridorKey_Studio.md).
+
 ## Quick Start
 
 From the repository root:
