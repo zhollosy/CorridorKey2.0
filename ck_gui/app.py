@@ -90,6 +90,7 @@ class App:
             self.add_paths(initial_paths)
         self._on_select()
         self._apply_view_toggles()
+        self.root.after(250, self._initial_sashes)
         self.gpu.start()
         self.log(f"{APP_NAME} {APP_VERSION} ready. Python: {self.cfg.prefs.resolved_python()}", "header")
         if TkinterDnD is None:
@@ -234,7 +235,7 @@ class App:
                  "time": ("Time", 96)}
         for c, (text, width) in heads.items():
             self.tree.heading(c, text=text)
-            self.tree.column(c, width=width, minwidth=30, stretch=c in ("name", "outputs", "status"),
+            self.tree.column(c, width=width, minwidth=30, stretch=c in ("name", "outputs", "status", "progress"),
                              anchor="center" if c in ("on", "type", "time") else "w")
         ysb = ttk.Scrollbar(qf, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=ysb.set)
@@ -325,6 +326,18 @@ class App:
     def _on_drop(self, event):
         self.add_paths(self.root.tk.splitlist(event.data))
         return event.action
+
+    def _initial_sashes(self):
+        """Start with a roomy preview and queue; panes otherwise open at their
+        requested sizes, which lets the settings tabs crowd out the preview."""
+        self.root.update_idletasks()
+        try:
+            if len(self.right.panes()) > 1:
+                self.right.sashpos(0, int(self.right.winfo_height() * 0.55))
+            if len(self.left.panes()) > 1:
+                self.left.sashpos(0, int(self.left.winfo_height() * 0.62))
+        except tk.TclError:
+            pass
 
     def _apply_view_toggles(self):
         panes = [str(p) for p in self.left.panes()]

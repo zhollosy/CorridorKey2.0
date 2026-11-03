@@ -45,12 +45,15 @@ def apply_theme(root: tk.Misc, name: str) -> dict:
                     font=("Segoe UI Semibold", 9))
     style.map("Accent.TButton", background=[("active", c["ok"]), ("disabled", c["panel"])])
     style.configure("Tool.TButton", padding=(6, 3))
-    style.configure("TCheckbutton", background=c["bg"], foreground=c["fg"])
-    style.map("TCheckbutton", background=[("active", c["bg"])],
-              indicatorcolor=[("selected", c["accent"]), ("!selected", c["field"])])
-    style.configure("TRadiobutton", background=c["bg"], foreground=c["fg"])
-    style.map("TRadiobutton", background=[("active", c["bg"])],
-              indicatorcolor=[("selected", c["accent"]), ("!selected", c["field"])])
+    # clam draws the check mark / radio dot in indicatorforeground on an
+    # indicatorbackground box; it ignores indicatorcolor.
+    for widget in ("TCheckbutton", "TRadiobutton"):
+        style.configure(widget, background=c["bg"], foreground=c["fg"],
+                        indicatorbackground=c["field"], indicatorforeground=c["accent"],
+                        upperbordercolor=c["border"], lowerbordercolor=c["border"])
+        style.map(widget, background=[("active", c["bg"])],
+                  indicatorbackground=[("disabled", c["panel"]), ("pressed", c["select"])],
+                  indicatorforeground=[("disabled", c["dim"])])
     style.configure("TEntry", fieldbackground=c["field"], foreground=c["fg"])
     style.configure("TSpinbox", fieldbackground=c["field"], foreground=c["fg"],
                     arrowcolor=c["fg"], background=c["field"])

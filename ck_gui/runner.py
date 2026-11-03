@@ -26,6 +26,23 @@ def _child_env() -> dict:
     return env
 
 
+LOW_CACHE_SPACE_GB = 8.0
+
+
+def free_space_gb(path: str) -> float | None:
+    """Free space on the drive holding ``path`` (or its nearest existing parent)."""
+    probe = os.path.abspath(path)
+    while probe and not os.path.exists(probe):
+        parent = os.path.dirname(probe)
+        if parent == probe:
+            return None
+        probe = parent
+    try:
+        return shutil.disk_usage(probe).free / 1e9
+    except OSError:
+        return None
+
+
 def kill_tree(proc: subprocess.Popen) -> None:
     if proc.poll() is not None:
         return
@@ -135,6 +152,12 @@ class QueueRunner:
         self._emit("log", job.id, f"\n=== {job.name} ===", "header")
         self._emit("log", job.id, "$ " + command_line(cmd), "cmd")
         self._emit("status", job.id, "Running", 0.0, "Starting", out_dir)
+        free = free_space_gb(prefs.temp_dir)
+        if free is not None and free < LOW_CACHE_SPACE_GB:
+            self._emit("log", job.id,
+                       f"[WARNING] Only {free:.1f} GB free for the feature cache at {prefs.temp_dir}. "
+                       "Long or high-resolution clips need several GB - set Preferences > General > "
+                       "Feature cache folder to a drive with more space.", "warn")
 
         parser = ProgressParser()
         tail = []
@@ -173,8 +196,12 @@ class QueueRunner:
             self._emit("status", job.id, "Done", 100.0, "Finished", out_dir, elapsed)
             return "Done"
         reason = next((l for l in reversed(tail) if "Error" in l or "error" in l), f"exit code {code}")
-        if "out of memory" in "\n".join(tail).lower():
+        tail_text = "\n".join(tail).lower()
+        if "out of memory" in tail_text:
             reason = "CUDA out of memory - try manual memory mode with Low VRAM and a smaller window"
+        elif "no space left on device" in tail_text or "errno 28" in tail_text:
+            reason = (f"Disk full while writing the feature cache ({prefs.temp_dir}) or outputs - "
+                      "set Preferences > General > Feature cache folder to a drive with more space")
         self._emit("status", job.id, "Failed", 0.0, reason.strip(), out_dir, elapsed)
         return "Failed"
 

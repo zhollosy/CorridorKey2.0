@@ -43,3 +43,6 @@ path_mappings.json
 .obsidian/
 .idea/
 .vscode/
+
+# Third-party test footage (licensed for practice only, never redistribute)
+samples/

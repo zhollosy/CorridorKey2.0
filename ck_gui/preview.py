@@ -111,12 +111,13 @@ class PreviewPanel(ttk.Frame):
         self.info_var = tk.StringVar(value="No clip selected")
         ttk.Label(bar, textvariable=self.info_var, style="Dim.TLabel").pack(side="right")
 
-        self.canvas = tk.Canvas(self, highlightthickness=0, bg=colors["canvas"])
+        # The scrubber is packed before the canvas so it keeps its row when the
+        # pane gets short; the canvas takes whatever height is left.
+        nav = ttk.Frame(self)
+        nav.pack(side="bottom", fill="x", padx=4, pady=(2, 4))
+        self.canvas = tk.Canvas(self, highlightthickness=0, bg=colors["canvas"], height=120)
         self.canvas.pack(fill="both", expand=True, padx=4)
         self.canvas.bind("<Configure>", lambda e: self._schedule())
-
-        nav = ttk.Frame(self)
-        nav.pack(fill="x", padx=4, pady=(2, 4))
         ttk.Button(nav, text="⏮", width=3, command=lambda: self.step(-10**9)).pack(side="left")
         ttk.Button(nav, text="◀", width=3, command=lambda: self.step(-1)).pack(side="left")
         ttk.Button(nav, text="▶", width=3, command=lambda: self.step(1)).pack(side="left")
