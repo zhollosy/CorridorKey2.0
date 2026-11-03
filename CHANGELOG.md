@@ -28,6 +28,10 @@
 
 - New **Wrap lines** option for the log, as a checkbox on the log toolbar and under View > Wrap Long Log Lines. Wrapped lines are indented under the message so timestamps stay in their own column. With wrapping off, a horizontal scrollbar appears, and the choice is remembered.
 
+- The README shows a screenshot of CorridorKey Studio after keying the synthetic sphere test clip (`docs/images/corridorkey_studio.png`). PNGs in `docs/images/` are exempt from the repo-wide `*.png` ignore rule.
+- The README's CorridorKey Studio section now lists all GUI features, how to start the app and enable drag and drop, and the disk-space advice.
+- The README setup notes that Python 3.10 to 3.12 is required, because `numpy<2` cannot be installed on 3.13.
+
 ### Local developer setup (not committed)
 - `.claude/starter.json` tells ClaudeStarter to launch CorridorKey Studio with **Run**.
 - `.vscode/tasks.json` adds VS Code tasks: run the GUI (default build task), the interactive launcher, keying a clip, a 24-frame quick test, the model smoke test, a compile check, the weight download, and venv setup/install.

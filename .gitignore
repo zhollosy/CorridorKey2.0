@@ -46,3 +46,6 @@ path_mappings.json
 
 # Third-party test footage (licensed for practice only, never redistribute)
 samples/
+
+# Documentation images are part of the repo
+!docs/images/*.png

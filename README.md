@@ -50,6 +50,10 @@ The download script fetches:
 
 After that everything loads from those local folders.
 
+Use Python 3.10 to 3.12. The requirements pin `numpy<2`, which has no wheels
+for Python 3.13, so installing on 3.13 fails. With `uv`, `uv venv venv
+--python 3.12` creates a suitable environment.
+
 ## Drag-And-Drop Launcher
 
 The easiest way to run CorridorKey is to drag a clip, a frame-sequence folder,
@@ -73,9 +77,62 @@ python run_interactive.py /path/to/clip.mp4
 
 ## Desktop GUI (CorridorKey Studio)
 
-Prefer a window to a terminal? Double-click `CorridorKey_Studio.bat` (or run
-`python corridorkey_studio.py`) for a render queue, preview/compare viewer,
-per-job settings, a chroma-key hint maker and a preferences dialog. See
+Prefer a window to a terminal? CorridorKey Studio is a desktop front end for
+`infer.py`. Every render still runs `infer.py` in its own process, so results
+are identical to the command line.
+
+![CorridorKey Studio after keying a test clip: the queue with a finished job, the input and checker output side by side, the Output settings tab and the render log](docs/images/corridorkey_studio.png)
+
+Start it by double-clicking `CorridorKey_Studio.bat` (drop clips or folders on
+it to queue them), or run:
+
+```
+python corridorkey_studio.py [clips or folders...]
+```
+
+For drag and drop from Explorer into the window, also install the optional
+extra:
+
+```
+pip install -r requirements-gui.txt
+```
+
+What it adds:
+
+- **Render queue**: add clips, frame sequences or whole folders. Enable,
+  disable, reorder or duplicate jobs. Run everything (`F5`) or only the
+  selection (`Ctrl+F5`), stop after the current clip, or abort. Queues can be
+  saved and loaded, and the last queue is restored on start.
+- **Live progress**: each clip shows its current stage, a progress bar,
+  elapsed time and an estimated total. Overall progress appears in the status
+  bar and window title.
+- **Preview and compare**: scrub any frame with the slider or arrow keys.
+  After a render, view the alpha, fg, checker or cutout output side by side
+  with the input.
+- **Per-job settings**: tabs for hint, output, memory, frame range and
+  advanced options. A change applies to every selected job. With nothing
+  selected, you are editing the defaults for new clips.
+- **Automatic hint detection**: `<clip>FrameHint.png`, `<clip>_AlphaHint.*`
+  and `AlphaHint` folders are picked up when clips are added, like the
+  drag-and-drop launcher.
+- **Hint maker**: builds a first-frame matte from a quick green or blue
+  chroma key (threshold, softness, shrink/grow, clean-up), saves it as
+  `<clip>FrameHint.png` and assigns it to the job.
+- **Preferences**: Python and `infer.py` paths, the feature cache folder,
+  output location and folder naming, skipping existing outputs, ffmpeg codec
+  and quality, EXR precision, low-VRAM tuning, and a dark or light theme.
+- **Disk-space checks**: low-VRAM mode writes several GB of temporary
+  features. The log warns before a render when the cache drive has less than
+  8 GB free, and a full disk is explained in plain words. Point *Feature
+  cache folder* at a roomy drive if your system drive is tight.
+- **Tools**: environment check, model smoke test, weight download/repair,
+  feature-cache cleanup, and *Copy Command Line* for the exact `infer.py`
+  call of a job.
+- **Log**: colored errors and warnings, optional line wrapping, auto-scroll,
+  and save to file.
+- **Status bar**: live GPU name, VRAM use, load and temperature.
+
+Press `F1` in the app for keyboard shortcuts. The full guide is in
 [docs/CorridorKey_Studio.md](docs/CorridorKey_Studio.md).
 
 ## Quick Start
