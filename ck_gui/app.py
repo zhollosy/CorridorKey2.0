@@ -6,6 +6,7 @@ import queue
 import sys
 import time
 import tkinter as tk
+import tkinter.font as tkfont
 import webbrowser
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
@@ -178,6 +179,9 @@ class App:
         v.add_checkbutton(label="Log Panel", variable=self.show_log_var, command=self._apply_view_toggles)
         v.add_checkbutton(label="Preview Panel", variable=self.show_preview_var,
                           command=self._apply_view_toggles)
+        self.wrap_log_var = tk.BooleanVar(value=self.cfg.state.wrap_log)
+        v.add_checkbutton(label="Wrap Long Log Lines", variable=self.wrap_log_var,
+                          command=self._apply_log_wrap)
         v.add_separator()
         self.theme_var = tk.StringVar(value=self.cfg.prefs.theme)
         v.add_radiobutton(label="Dark Theme", value="dark", variable=self.theme_var,
@@ -261,17 +265,26 @@ class App:
         ttk.Button(lbar, text="Save…", command=self.save_log).pack(side="right")
         ttk.Button(lbar, text="Clear", command=self.clear_log).pack(side="right", padx=4)
         ttk.Checkbutton(lbar, text="Auto-scroll", variable=self.autoscroll).pack(side="right", padx=8)
-        self.logbox = tk.Text(lf, height=10, wrap="none", relief="flat", padx=8, pady=6,
+        ttk.Checkbutton(lbar, text="Wrap lines", variable=self.wrap_log_var,
+                        command=self._apply_log_wrap).pack(side="right", padx=8)
+        body = ttk.Frame(lf)
+        body.pack(fill="both", expand=True)
+        body.rowconfigure(0, weight=1)
+        body.columnconfigure(0, weight=1)
+        self.logbox = tk.Text(body, height=10, wrap="none", relief="flat", padx=8, pady=6,
                               font=("Consolas", self.cfg.prefs.log_font_size),
                               background=c["canvas"], foreground=c["fg"], insertbackground=c["fg"],
                               selectbackground=c["select"])
-        lsb = ttk.Scrollbar(lf, orient="vertical", command=self.logbox.yview)
-        self.logbox.configure(yscrollcommand=lsb.set, state="disabled")
-        self.logbox.pack(side="left", fill="both", expand=True)
-        lsb.pack(side="right", fill="y")
+        lsb = ttk.Scrollbar(body, orient="vertical", command=self.logbox.yview)
+        self.log_hsb = ttk.Scrollbar(body, orient="horizontal", command=self.logbox.xview)
+        self.logbox.configure(yscrollcommand=lsb.set, xscrollcommand=self.log_hsb.set,
+                              state="disabled")
+        self.logbox.grid(row=0, column=0, sticky="nsew")
+        lsb.grid(row=0, column=1, sticky="ns")
         for tag in ("error", "warn", "cmd", "header", "ok", "dim"):
             self.logbox.tag_configure(tag, foreground=c[tag])
         self.logbox.tag_configure("header", font=("Consolas", self.cfg.prefs.log_font_size, "bold"))
+        self._apply_log_wrap()
         self.log_frame = lf
         self.left.add(lf, weight=1)
 
@@ -849,8 +862,8 @@ class App:
         box.configure(state="normal")
         for text, tag in lines:
             stamp = time.strftime("%H:%M:%S ")
-            box.insert("end", stamp, ("dim",))
-            box.insert("end", text.lstrip("\n") + "\n", (tag,) if tag else ())
+            box.insert("end", stamp, ("dim", "line"))
+            box.insert("end", text.lstrip("\n") + "\n", (tag, "line") if tag else ("line",))
             self._log_lines += 1
         overflow = self._log_lines - self.cfg.prefs.max_log_lines
         if overflow > 0:
@@ -859,6 +872,20 @@ class App:
         box.configure(state="disabled")
         if self.autoscroll.get():
             box.see("end")
+
+    def _apply_log_wrap(self):
+        """Toggle word wrap; wrapped lines get a hanging indent past the timestamp."""
+        wrap = self.wrap_log_var.get()
+        self.logbox.configure(wrap="word" if wrap else "none")
+        indent = tkfont.Font(font=self.logbox.cget("font")).measure("00:00:00 ")
+        # Tk reads lmargin2 from the first character of each display line, so
+        # every log character carries the shared "line" tag.
+        self.logbox.tag_configure("line", lmargin2=indent)
+        if wrap:
+            self.log_hsb.grid_remove()
+        else:
+            self.log_hsb.grid(row=1, column=0, sticky="ew")
+        self.cfg.state.wrap_log = wrap
 
     def clear_log(self):
         self.logbox.configure(state="normal")
@@ -1052,6 +1079,7 @@ class App:
         self.cfg.save()
         self.logbox.configure(font=("Consolas", prefs.log_font_size))
         self.logbox.tag_configure("header", font=("Consolas", prefs.log_font_size, "bold"))
+        self._apply_log_wrap()
         if prefs.theme != old.theme:
             self.theme_var.set(prefs.theme)
             self._switch_theme()

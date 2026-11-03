@@ -42,6 +42,9 @@ Optional drag and drop from Explorer needs `tkinterdnd2`
 - **Tools menu**: environment check, model smoke test, weight download/repair,
   feature-cache cleanup.
 - **Status bar**: live GPU name, VRAM, utilisation and temperature.
+- **Log**: tick *Wrap lines* (or View > Wrap Long Log Lines) to fold long
+  commands and tracebacks; otherwise scroll sideways. *Save…* writes the log
+  to a file.
 
 ## Preferences (`Ctrl+,`)
 

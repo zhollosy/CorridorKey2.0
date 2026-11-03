@@ -95,6 +95,7 @@ class UIState:
     last_dir: str = ""
     show_log: bool = True
     show_preview: bool = True
+    wrap_log: bool = False
     defaults: dict = field(default_factory=dict)
 
 

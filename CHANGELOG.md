@@ -26,6 +26,8 @@
 - Before each render, the log warns when the feature-cache drive has less than 8 GB free.
 - A full disk now fails with a plain explanation and points to the Feature cache folder setting, instead of a raw `Errno 28`.
 
+- New **Wrap lines** option for the log, as a checkbox on the log toolbar and under View > Wrap Long Log Lines. Wrapped lines are indented under the message so timestamps stay in their own column. With wrapping off, a horizontal scrollbar appears, and the choice is remembered.
+
 ### Local developer setup (not committed)
 - `.claude/starter.json` tells ClaudeStarter to launch CorridorKey Studio with **Run**.
 - `.vscode/tasks.json` adds VS Code tasks: run the GUI (default build task), the interactive launcher, keying a clip, a 24-frame quick test, the model smoke test, a compile check, the weight download, and venv setup/install.
